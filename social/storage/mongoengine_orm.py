@@ -89,7 +89,11 @@ class MongoengineUserMixin(UserMixin):
         Arguments are directly passed to filter() manager method.
         """
         if 'username' in kwargs:
-            kwargs[cls.username_field()] = kwargs.pop('username')
+            username_field = cls.username_field()
+            case_insensitive = getattr(settings, setting_name('USERNAME_CASE_INSENSITIVE'), False)
+            if case_insensitive:
+                username_field += '__iexact'
+            kwargs[username_field] = kwargs.pop('username')
         return cls.user_model().objects.filter(*args, **kwargs).count() > 0
 
     @classmethod
